@@ -63,8 +63,8 @@ TripletSparseMatrix::TripletSparseMatrix(int num_rows,
 
 TripletSparseMatrix::TripletSparseMatrix(const int num_rows,
                                          const int num_cols,
-                                         const std::vector<int>& rows,
-                                         const std::vector<int>& cols,
+                                         const std::vector<SuiteSparse_long>& rows,
+                                         const std::vector<SuiteSparse_long>& cols,
                                          const std::vector<double>& values)
     : num_rows_(num_rows),
       num_cols_(num_cols),
@@ -123,8 +123,8 @@ void TripletSparseMatrix::Reserve(int new_max_num_nonzeros) {
   // Nothing to do if we have enough space already.
   if (new_max_num_nonzeros <= max_num_nonzeros_) return;
 
-  int* new_rows = new int[new_max_num_nonzeros];
-  int* new_cols = new int[new_max_num_nonzeros];
+  SuiteSparse_long* new_rows = new SuiteSparse_long[new_max_num_nonzeros];
+  SuiteSparse_long* new_cols = new SuiteSparse_long[new_max_num_nonzeros];
   double* new_values = new double[new_max_num_nonzeros];
 
   for (int i = 0; i < num_nonzeros_; ++i) {
@@ -152,8 +152,8 @@ void TripletSparseMatrix::set_num_nonzeros(int num_nonzeros) {
 }
 
 void TripletSparseMatrix::AllocateMemory() {
-  rows_.reset(new int[max_num_nonzeros_]);
-  cols_.reset(new int[max_num_nonzeros_]);
+  rows_.reset(new SuiteSparse_long[max_num_nonzeros_]);
+  cols_.reset(new SuiteSparse_long[max_num_nonzeros_]);
   values_.reset(new double[max_num_nonzeros_]);
 }
 
@@ -233,8 +233,8 @@ void TripletSparseMatrix::Resize(int new_num_rows, int new_num_cols) {
   num_rows_ = new_num_rows;
   num_cols_ = new_num_cols;
 
-  int* r_ptr = rows_.get();
-  int* c_ptr = cols_.get();
+  SuiteSparse_long* r_ptr = rows_.get();
+  SuiteSparse_long* c_ptr = cols_.get();
   double* v_ptr = values_.get();
 
   int dropped_terms = 0;
@@ -268,7 +268,7 @@ TripletSparseMatrix* TripletSparseMatrix::CreateSparseDiagonalMatrix(
 void TripletSparseMatrix::ToTextFile(FILE* file) const {
   CHECK(file != nullptr);
   for (int i = 0; i < num_nonzeros_; ++i) {
-    fprintf(file, "% 10d % 10d %17f\n", rows_[i], cols_[i], values_[i]);
+    fprintf(file, "% 10ld % 10ld %17f\n", rows_[i], cols_[i], values_[i]);
   }
 }
 
@@ -279,15 +279,15 @@ TripletSparseMatrix* TripletSparseMatrix::CreateRandomMatrix(
   CHECK_GT(options.density, 0.0);
   CHECK_LE(options.density, 1.0);
 
-  std::vector<int> rows;
-  std::vector<int> cols;
+  std::vector<SuiteSparse_long> rows;
+  std::vector<SuiteSparse_long> cols;
   std::vector<double> values;
   while (rows.empty()) {
     rows.clear();
     cols.clear();
     values.clear();
-    for (int r = 0; r < options.num_rows; ++r) {
-      for (int c = 0; c < options.num_cols; ++c) {
+    for (SuiteSparse_long r = 0; r < options.num_rows; ++r) {
+      for (SuiteSparse_long c = 0; c < options.num_cols; ++c) {
         if (RandDouble() <= options.density) {
           rows.push_back(r);
           cols.push_back(c);

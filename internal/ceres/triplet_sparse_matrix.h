@@ -52,8 +52,8 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
   TripletSparseMatrix(int num_rows, int num_cols, int max_num_nonzeros);
   TripletSparseMatrix(int num_rows,
                       int num_cols,
-                      const std::vector<int>& rows,
-                      const std::vector<int>& cols,
+                      const std::vector<SuiteSparse_long>& rows,
+                      const std::vector<SuiteSparse_long>& cols,
                       const std::vector<double>& values);
 
   explicit TripletSparseMatrix(const TripletSparseMatrix& orig);
@@ -99,11 +99,11 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
   void Resize(int new_num_rows, int new_num_cols);
 
   // clang-format off
-  int max_num_nonzeros() const { return max_num_nonzeros_; }
-  const int* rows()      const { return rows_.get();       }
-  const int* cols()      const { return cols_.get();       }
-  int* mutable_rows()          { return rows_.get();       }
-  int* mutable_cols()          { return cols_.get();       }
+  int max_num_nonzeros() const         { return max_num_nonzeros_; }
+  const SuiteSparse_long* rows() const { return rows_.get();       }
+  const SuiteSparse_long* cols() const { return cols_.get();       }
+  SuiteSparse_long* mutable_rows()     { return rows_.get();       }
+  SuiteSparse_long* mutable_cols()     { return cols_.get();       }
   // clang-format on
 
   // Returns true if the entries of the matrix obey the row, column,
@@ -150,8 +150,8 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
   // stored at the location (rows_[i], cols_[i]). If the there are
   // multiple entries with the same (rows_[i], cols_[i]), the values_
   // entries corresponding to them are summed up.
-  std::unique_ptr<int[]> rows_;
-  std::unique_ptr<int[]> cols_;
+  std::unique_ptr<SuiteSparse_long[]> rows_;
+  std::unique_ptr<SuiteSparse_long[]> cols_;
   std::unique_ptr<double[]> values_;
 };
 

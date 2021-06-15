@@ -123,7 +123,7 @@ class SuiteSparse {
   // Create and return a matrix m = A * A'. Caller owns the
   // result. The matrix A is not modified.
   cholmod_sparse* AATranspose(cholmod_sparse* A) {
-    cholmod_sparse* m = cholmod_aat(A, NULL, A->nrow, 1, &cc_);
+    cholmod_sparse* m = cholmod_l_aat(A, NULL, A->nrow, 1, &cc_);
     m->stype = 1;  // Pay attention to the upper triangular part.
     return m;
   }
@@ -136,7 +136,7 @@ class SuiteSparse {
                            cholmod_dense* y) {
     double alpha_[2] = {alpha, 0};
     double beta_[2] = {beta, 0};
-    cholmod_sdmult(A, 0, alpha_, beta_, x, y, &cc_);
+    cholmod_l_sdmult(A, 0, alpha_, beta_, x, y, &cc_);
   }
 
   // Find an ordering of A or AA' (if A is unsymmetric) that minimizes
@@ -155,8 +155,8 @@ class SuiteSparse {
   cholmod_factor* AnalyzeCholesky(cholmod_sparse* A, std::string* message);
 
   cholmod_factor* BlockAnalyzeCholesky(cholmod_sparse* A,
-                                       const std::vector<int>& row_blocks,
-                                       const std::vector<int>& col_blocks,
+                                       const std::vector<SuiteSparse_long>& row_blocks,
+                                       const std::vector<SuiteSparse_long>& col_blocks,
                                        std::string* message);
 
   // If A is symmetric, then compute the symbolic Cholesky
@@ -172,7 +172,7 @@ class SuiteSparse {
   // Caller owns the result.
   cholmod_factor* AnalyzeCholeskyWithUserOrdering(
       cholmod_sparse* A,
-      const std::vector<int>& ordering,
+      const std::vector<SuiteSparse_long>& ordering,
       std::string* message);
 
   // Perform a symbolic factorization of A without re-ordering A. No
@@ -226,14 +226,14 @@ class SuiteSparse {
   // A. If this is the case, only the first sum(col_blocks) are used
   // to compute the ordering.
   bool BlockAMDOrdering(const cholmod_sparse* A,
-                        const std::vector<int>& row_blocks,
-                        const std::vector<int>& col_blocks,
-                        std::vector<int>* ordering);
+                        const std::vector<SuiteSparse_long>& row_blocks,
+                        const std::vector<SuiteSparse_long>& col_blocks,
+                        std::vector<SuiteSparse_long>* ordering);
 
   // Find a fill reducing approximate minimum degree
   // ordering. ordering is expected to be large enough to hold the
   // ordering.
-  bool ApproximateMinimumDegreeOrdering(cholmod_sparse* matrix, int* ordering);
+  bool ApproximateMinimumDegreeOrdering(cholmod_sparse* matrix, SuiteSparse_long* ordering);
 
   // Before SuiteSparse version 4.2.0, cholmod_camd was only enabled
   // if SuiteSparse was compiled with Metis support. This makes
@@ -263,23 +263,23 @@ class SuiteSparse {
   // If CERES_NO_CAMD is defined then calling this function will
   // result in a crash.
   bool ConstrainedApproximateMinimumDegreeOrdering(cholmod_sparse* matrix,
-                                                   int* constraints,
-                                                   int* ordering);
+                                                   SuiteSparse_long* constraints,
+                                                   SuiteSparse_long* ordering);
 
-  void Free(cholmod_sparse* m) { cholmod_free_sparse(&m, &cc_); }
-  void Free(cholmod_dense* m) { cholmod_free_dense(&m, &cc_); }
-  void Free(cholmod_factor* m) { cholmod_free_factor(&m, &cc_); }
+  void Free(cholmod_sparse* m) { cholmod_l_free_sparse(&m, &cc_); }
+  void Free(cholmod_dense* m) { cholmod_l_free_dense(&m, &cc_); }
+  void Free(cholmod_factor* m) { cholmod_l_free_factor(&m, &cc_); }
 
   void Print(cholmod_sparse* m, const std::string& name) {
-    cholmod_print_sparse(m, const_cast<char*>(name.c_str()), &cc_);
+    cholmod_l_print_sparse(m, const_cast<char*>(name.c_str()), &cc_);
   }
 
   void Print(cholmod_dense* m, const std::string& name) {
-    cholmod_print_dense(m, const_cast<char*>(name.c_str()), &cc_);
+    cholmod_l_print_dense(m, const_cast<char*>(name.c_str()), &cc_);
   }
 
   void Print(cholmod_triplet* m, const std::string& name) {
-    cholmod_print_triplet(m, const_cast<char*>(name.c_str()), &cc_);
+    cholmod_l_print_triplet(m, const_cast<char*>(name.c_str()), &cc_);
   }
 
   cholmod_common* mutable_cc() { return &cc_; }

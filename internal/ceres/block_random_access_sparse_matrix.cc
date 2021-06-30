@@ -90,7 +90,7 @@ BlockRandomAccessSparseMatrix::BlockRandomAccessSparseMatrix(
     pos += row_block_size * col_block_size;
   }
 
-  if(tsm_->index_type_ == INT_32) {
+  if(tsm_->index_type_ == INT32) {
     int* rows = reinterpret_cast<int*>(tsm_->mutable_rows());
     int* cols = reinterpret_cast<int*>(tsm_->mutable_cols());
 

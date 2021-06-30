@@ -79,7 +79,7 @@ BlockRandomAccessDiagonalMatrix::BlockRandomAccessDiagonalMatrix(
 
   tsm_->set_num_nonzeros(num_nonzeros);
   double* values = tsm_->mutable_values();
-  if(tsm_->index_type() == TripletSparseMatrix::INT_32) {
+  if(tsm_->index_type() == TripletSparseMatrix::INT32) {
     int* rows = reinterpret_cast<int*>(tsm_->mutable_rows());
     int* cols = reinterpret_cast<int*>(tsm_->mutable_cols());
 

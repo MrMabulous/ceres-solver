@@ -63,7 +63,7 @@ using std::vector;
 
 namespace {
 
-class BlockRandomAccessSparseMatrixAdapter : public LinearOperator<int> {
+class BlockRandomAccessSparseMatrixAdapter : public LinearOperator {
  public:
   explicit BlockRandomAccessSparseMatrixAdapter(
       const BlockRandomAccessSparseMatrix& m)
@@ -88,7 +88,7 @@ class BlockRandomAccessSparseMatrixAdapter : public LinearOperator<int> {
   const BlockRandomAccessSparseMatrix& m_;
 };
 
-class BlockRandomAccessDiagonalMatrixAdapter : public LinearOperator<int> {
+class BlockRandomAccessDiagonalMatrixAdapter : public LinearOperator {
  public:
   explicit BlockRandomAccessDiagonalMatrixAdapter(
       const BlockRandomAccessDiagonalMatrix& m)

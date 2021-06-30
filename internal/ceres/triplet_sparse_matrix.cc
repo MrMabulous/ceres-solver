@@ -47,7 +47,7 @@ TripletSparseMatrix::TripletSparseMatrix(bool force_long_indices)
     num_cols_(0),
     max_num_nonzeros_(0),
     num_nonzeros_(0),
-    index_type_(force_long_indices ? INT_32 : INT_64) {}
+    index_type_(force_long_indices ? INT32 : INT64) {}
 
 TripletSparseMatrix::~TripletSparseMatrix() {}
 
@@ -64,8 +64,8 @@ TripletSparseMatrix::TripletSparseMatrix(int64_t num_rows,
   CHECK_GE(num_cols, 0);
   CHECK_GE(max_num_nonzeros, 0);
   index_type_ = force_long_indices
-      || max_num_nonzeros_ >= std::numeric_limits<int>::max()) ? INT_64
-                                                               : INT_32;
+      || max_num_nonzeros_ >= std::numeric_limits<int>::max()) ? INT64
+                                                               : INT32;
   AllocateMemory();
 }
 
@@ -86,10 +86,10 @@ TripletSparseMatrix::TripletSparseMatrix(const int64_t num_rows,
   CHECK_EQ(rows.size(), cols.size());
   CHECK_EQ(rows.size(), values.size());
   index_type_ = force_long_indices
-      || max_num_nonzeros_ >= std::numeric_limits<int>::max()) ? INT_64
-                                                               : INT_32;
+      || max_num_nonzeros_ >= std::numeric_limits<int>::max()) ? INT64
+                                                               : INT32;
   AllocateMemory();
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for(int i = 0; i < values.size(); ++i) {
       rows_[i] = static_cast<int>(rows[i]);
       cols_[i] = static_cast<int>(cols[i]);
@@ -131,7 +131,7 @@ TripletSparseMatrix& TripletSparseMatrix::operator=(
 }
 
 bool TripletSparseMatrix::AllTripletsWithinBounds() const {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int i = 0; i < num_nonzeros_; ++i) {
       // clang-format off
       if ((rows_[i] < 0) || (rows_[i] >= num_rows_) ||
@@ -158,12 +158,12 @@ void TripletSparseMatrix::Reserve(int64_t new_max_num_nonzeros) {
   // Nothing to do if we have enough space already.
   if (new_max_num_nonzeros <= max_num_nonzeros_) return;
 
-  IndexType new_index_type = index_type_ == INT_64 ||
-      new_max_num_nonzeros >= std::numeric_limits<int>::max()) ? INT_64
-                                                               : INT_32;
+  IndexType new_index_type = index_type_ == INT64 ||
+      new_max_num_nonzeros >= std::numeric_limits<int>::max()) ? INT64
+                                                               : INT32;
   double* new_values = new double[new_max_num_nonzeros];
-  if(new_index_type == INT_32) {
-    CHECK_EQ(index_type_, INT_32);
+  if(new_index_type == INT32) {
+    CHECK_EQ(index_type_, INT32);
     int* new_rows = new int[new_max_num_nonzeros];
     int* new_cols = new int[new_max_num_nonzeros];
 
@@ -181,7 +181,7 @@ void TripletSparseMatrix::Reserve(int64_t new_max_num_nonzeros) {
     int64_t* new_rows = new int64_t[new_max_num_nonzeros];
     int64_t* new_cols = new int64_t[new_max_num_nonzeros];
     
-    if(index_type_ == INT_32) {
+    if(index_type_ == INT32) {
       for (int64_t i = 0; i < num_nonzeros_; ++i) {
         new_rows[i] = static_cast<int64_t>(rows_[i]);
         new_cols[i] = static_cast<int64_t>(cols_[i]);
@@ -218,7 +218,7 @@ void TripletSparseMatrix::set_num_nonzeros(int64_t num_nonzeros) {
 }
 
 void TripletSparseMatrix::AllocateMemory() {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     rows_.reset(new int[max_num_nonzeros_]);
     cols_.reset(new int[max_num_nonzeros_]);
   } else {
@@ -231,7 +231,7 @@ void TripletSparseMatrix::AllocateMemory() {
 void TripletSparseMatrix::CopyData(
     const TripletSparseMatrix& orig) {
   CHECK_EQ(index_type_, orig.index_type_);
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int64_t i = 0; i < num_nonzeros_; ++i) {
       rows_[i] = orig.rows_[i]);
       cols_[i] = orig.cols_[i]);
@@ -247,7 +247,7 @@ void TripletSparseMatrix::CopyData(
 }
 
 void TripletSparseMatrix::RightMultiply(const double* x, double* y) const {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int64_t i = 0; i < num_nonzeros_; ++i) {
       y[rows_[i]] += values_[i] * x[cols_[i]];
     }
@@ -259,7 +259,7 @@ void TripletSparseMatrix::RightMultiply(const double* x, double* y) const {
 }
 
 void TripletSparseMatrix::LeftMultiply(const double* x, double* y) const {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int64_t i = 0; i < num_nonzeros_; ++i) {
       y[cols_[i]] += values_[i] * x[rows_[i]];
     }
@@ -273,7 +273,7 @@ void TripletSparseMatrix::LeftMultiply(const double* x, double* y) const {
 void TripletSparseMatrix::SquaredColumnNorm(double* x) const {
   CHECK(x != nullptr);
   memset(x, 0, sizeof(double) * num_cols_);
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int64_t i = 0; i < num_nonzeros_; ++i) {
       x[cols_[i]] += values_[i] * values_[i];
     }
@@ -286,7 +286,7 @@ void TripletSparseMatrix::SquaredColumnNorm(double* x) const {
 
 void TripletSparseMatrix::ScaleColumns(const double* scale) {
   CHECK(scale != nullptr);
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int64_t i = 0; i < num_nonzeros_; ++i) {
       values_[i] = values_[i] * scale[cols_[i]];
     }
@@ -304,7 +304,7 @@ void TripletSparseMatrix::ToDenseMatrix(Matrix* dense_matrix) const {
                        static_cast<Eigen::Index>(num_cols_));
   dense_matrix->setZero();
   Matrix& m = *dense_matrix;
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     for (int64_t i = 0; i < num_nonzeros_; ++i) {
       m(rows_[i], cols_[i]) += values_[i];
     }
@@ -318,8 +318,8 @@ void TripletSparseMatrix::ToDenseMatrix(Matrix* dense_matrix) const {
 void TripletSparseMatrix::AppendRows(const TripletSparseMatrix& B) {
   CHECK_EQ(B.num_cols(), num_cols_);
   Reserve(num_nonzeros_ + B.num_nonzeros_);
-  if(index_type_ == INT_32) {
-    if(B.index_type() == INT_32) {
+  if(index_type_ == INT32) {
+    if(B.index_type() == INT32) {
       for (int64_t i = 0; i < B.num_nonzeros_; ++i) {
         rows_[num_nonzeros_] = reinterpret_cast<int*>(B.rows())[i] + num_rows_;
         cols_[num_nonzeros_] = reinterpret_cast<int*>(B.cols())[i];
@@ -335,7 +335,7 @@ void TripletSparseMatrix::AppendRows(const TripletSparseMatrix& B) {
       }
     }
   } else {
-    if(B.index_type() == INT_32) {
+    if(B.index_type() == INT32) {
       for (int64_t i = 0; i < B.num_nonzeros_; ++i) {
         rows64_[num_nonzeros_] = static_cast<int64_t>(reinterpret_cast<int*>(
             B.rows())[i] + num_rows_);
@@ -358,8 +358,8 @@ void TripletSparseMatrix::AppendRows(const TripletSparseMatrix& B) {
 void TripletSparseMatrix::AppendCols(const TripletSparseMatrix& B) {
   CHECK_EQ(B.num_rows(), num_rows_);
   Reserve(num_nonzeros_ + B.num_nonzeros_);
-  if(index_type_ == INT_32) {
-    if(B.index_type() == INT_32) {
+  if(index_type_ == INT32) {
+    if(B.index_type() == INT32) {
       for (int64_t i = 0; i < B.num_nonzeros_; ++i, ++num_nonzeros_) {
         rows_[num_nonzeros_] = reinterpret_cast<int*>(B.rows())[i];
         cols_[num_nonzeros_] = reinterpret_cast<int*>(B.cols())[i] + num_cols_;
@@ -375,7 +375,7 @@ void TripletSparseMatrix::AppendCols(const TripletSparseMatrix& B) {
       }
     }
   } else {
-    if(B.index_type() == INT_32) {
+    if(B.index_type() == INT32) {
       for (int64_t i = 0; i < B.num_nonzeros_; ++i, ++num_nonzeros_) {
         rows64_[num_nonzeros_] = static_cast<int64_t>(reinterpret_cast<int*>(
             B.rows())[i]);
@@ -416,7 +416,7 @@ void TripletSparseMatrix::Resize(int64_t new_num_rows,
   for (int64_t i = 0; i < num_nonzeros_; ++i) {
     if ((r_ptr[i] < num_rows_) && (c_ptr[i] < num_cols_)) {
       if (dropped_terms) {
-        if(index_type_ == INT_32) {
+        if(index_type_ == INT32) {
           r_ptr[i - dropped_terms] = r_ptr[i];
           c_ptr[i - dropped_terms] = c_ptr[i];
         } else {
@@ -434,7 +434,7 @@ void TripletSparseMatrix::Resize(int64_t new_num_rows,
 }
 
 const void* TripletSparseMatrix::rows() const {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     return rows_.get();
   } else {
     return rows64_.get();
@@ -442,7 +442,7 @@ const void* TripletSparseMatrix::rows() const {
 }
 
 const void* TripletSparseMatrix::cols() const {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     return cols_.get();
   } else {
     return cols64_.get();
@@ -450,7 +450,7 @@ const void* TripletSparseMatrix::cols() const {
 }
 
 void* TripletSparseMatrix::mutable_rows() {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     return rows_.get();
   } else {
     return rows64_.get();
@@ -458,7 +458,7 @@ void* TripletSparseMatrix::mutable_rows() {
 }
 
 void* TripletSparseMatrix::mutable_cols() {
-  if(index_type_ == INT_32) {
+  if(index_type_ == INT32) {
     return cols_.get();
   } else {
     return cols64_.get();
@@ -470,7 +470,7 @@ TripletSparseMatrix* TripletSparseMatrix::CreateSparseDiagonalMatrix(
   TripletSparseMatrix* m =
       new TripletSparseMatrix(num_rows, num_rows, num_rows);
   for (int64_t i = 0; i < num_rows; ++i) {
-    if(m->index_type() == INT_32) {
+    if(m->index_type() == INT32) {
       reinterpret_cast<int*>(m->mutable_rows())[i] = static_cast<int>(i);
       reinterpret_cast<int*>(m->mutable_cols())[i] = static_cast<int>(i);
     } else {
@@ -486,7 +486,7 @@ TripletSparseMatrix* TripletSparseMatrix::CreateSparseDiagonalMatrix(
 void TripletSparseMatrix::ToTextFile(FILE* file) const {
   CHECK(file != nullptr);
   for (int64_t i = 0; i < num_nonzeros_; ++i) {
-    if(index_type_ == INT_32) {
+    if(index_type_ == INT32) {
       fprintf(file, "% 10ld % 10ld %17f\n", rows_[i], cols_[i], values_[i]);
     } else {
       fprintf(file, "% 10lld % 10lld %17f\n",

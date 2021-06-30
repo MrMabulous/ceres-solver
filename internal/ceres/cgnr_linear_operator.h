@@ -80,7 +80,7 @@ class SparseMatrix;
 // Note: This class is not thread safe, since it uses some temporary storage.
 class CgnrLinearOperator : public LinearOperator {
  public:
-  CgnrLinearOperator(const LinearOperator<IndexType>& A, const double* D)
+  CgnrLinearOperator(const LinearOperator& A, const double* D)
       : A_(A), D_(D), z_(new double[A.num_rows()]) {}
   virtual ~CgnrLinearOperator() {}
 
@@ -109,7 +109,7 @@ class CgnrLinearOperator : public LinearOperator {
   int64_t num_cols() const final { return A_.num_cols(); }
 
  private:
-  const LinearOperator<int>& A_;
+  const LinearOperator& A_;
   const double* D_;
   std::unique_ptr<double[]> z_;
 };

@@ -46,11 +46,13 @@ namespace internal {
 // manipulate sparse matrices in triplet (i,j,s) form.  This object is
 // inspired by the design of the cholmod_triplet struct used in the
 // SuiteSparse package and is memory layout compatible with it.
+// The implementation converts automatically from int cell-indices to int64
+// indices
 class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
  public:
   enum IndexType {
-    INT_32 = 4,
-    INT_64 = 8
+    INT32 = sizeof(int),
+    INT64 = sizeof(int64_t)
   };
 
   TripletSparseMatrix(bool force_long_indices = false);

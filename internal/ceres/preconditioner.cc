@@ -65,7 +65,7 @@ void SparseMatrixPreconditionerWrapper::RightMultiply(const double* x,
   matrix_->RightMultiply(x, y);
 }
 
-int SparseMatrixPreconditionerWrapper::num_rows() const {
+int64_t SparseMatrixPreconditionerWrapper::num_rows() const {
   return matrix_->num_rows();
 }
 

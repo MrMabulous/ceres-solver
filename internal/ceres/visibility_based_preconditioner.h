@@ -141,7 +141,7 @@ class VisibilityBasedPreconditioner : public BlockSparseMatrixPreconditioner {
 
   // Preconditioner interface
   void RightMultiply(const double* x, double* y) const final;
-  int num_rows() const final;
+  int64_t num_rows() const final;
 
   friend class VisibilityBasedPreconditionerTest;
 

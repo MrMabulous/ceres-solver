@@ -50,7 +50,8 @@ class CERES_EXPORT_INTERNAL BlockRandomAccessDiagonalMatrix
     : public BlockRandomAccessMatrix {
  public:
   // blocks is an array of block sizes.
-  explicit BlockRandomAccessDiagonalMatrix(const std::vector<int>& blocks);
+  explicit BlockRandomAccessDiagonalMatrix(
+      const std::vector<int>& blocks);
   BlockRandomAccessDiagonalMatrix(const BlockRandomAccessDiagonalMatrix&) =
       delete;
   void operator=(const BlockRandomAccessDiagonalMatrix&) = delete;
@@ -78,8 +79,8 @@ class CERES_EXPORT_INTERNAL BlockRandomAccessDiagonalMatrix
   void RightMultiply(const double* x, double* y) const;
 
   // Since the matrix is square, num_rows() == num_cols().
-  int num_rows() const final { return tsm_->num_rows(); }
-  int num_cols() const final { return tsm_->num_cols(); }
+  int64_t num_rows() const final { return tsm_->num_rows(); }
+  int64_t num_cols() const final { return tsm_->num_cols(); }
 
   const TripletSparseMatrix* matrix() const { return tsm_.get(); }
   TripletSparseMatrix* mutable_matrix() { return tsm_.get(); }

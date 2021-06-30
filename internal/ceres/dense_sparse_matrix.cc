@@ -120,14 +120,14 @@ void DenseSparseMatrix::RemoveDiagonal() {
   // Leave the diagonal reserved.
 }
 
-int DenseSparseMatrix::num_rows() const {
+int64_t DenseSparseMatrix::num_rows() const {
   if (has_diagonal_reserved_ && !has_diagonal_appended_) {
     return m_.rows() - m_.cols();
   }
   return m_.rows();
 }
 
-int DenseSparseMatrix::num_cols() const { return m_.cols(); }
+int64_t DenseSparseMatrix::num_cols() const { return m_.cols(); }
 
 int DenseSparseMatrix::num_nonzeros() const {
   if (has_diagonal_reserved_ && !has_diagonal_appended_) {

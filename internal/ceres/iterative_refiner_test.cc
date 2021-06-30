@@ -68,8 +68,8 @@ class FakeSparseMatrix : public SparseMatrix {
 
   double* mutable_values() final { return m_.data(); }
   const double* values() const final { return m_.data(); }
-  int num_rows() const final { return m_.cols(); }
-  int num_cols() const final { return m_.cols(); }
+  int64_t num_rows() const final { return m_.cols(); }
+  int64_t num_cols() const final { return m_.cols(); }
   int num_nonzeros() const final { return m_.cols() * m_.cols(); }
 
   // The following methods are not needed for tests in this file.

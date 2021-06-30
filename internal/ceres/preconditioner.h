@@ -139,8 +139,8 @@ class CERES_EXPORT_INTERNAL Preconditioner : public LinearOperator {
     return RightMultiply(x, y);
   }
 
-  int num_rows() const override = 0;
-  int num_cols() const override { return num_rows(); }
+  int64_t num_rows() const override = 0;
+  int64_t num_cols() const override { return num_rows(); }
 };
 
 // This templated subclass of Preconditioner serves as a base class for
@@ -175,7 +175,7 @@ class SparseMatrixPreconditionerWrapper : public SparseMatrixPreconditioner {
 
   // Preconditioner interface
   virtual void RightMultiply(const double* x, double* y) const;
-  virtual int num_rows() const;
+  virtual int64_t num_rows() const;
 
  private:
   virtual bool UpdateImpl(const SparseMatrix& A, const double* D);

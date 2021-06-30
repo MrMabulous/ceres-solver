@@ -50,8 +50,8 @@ class CERES_EXPORT_INTERNAL LinearOperator {
   // y = y + A'x;
   virtual void LeftMultiply(const double* x, double* y) const = 0;
 
-  virtual int num_rows() const = 0;
-  virtual int num_cols() const = 0;
+  virtual int64_t num_rows() const = 0;
+  virtual int64_t num_cols() const = 0;
 };
 
 }  // namespace internal

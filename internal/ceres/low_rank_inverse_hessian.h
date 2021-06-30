@@ -59,7 +59,7 @@ namespace internal {
 // Byrd, R. H.; Nocedal, J.; Schnabel, R. B. (1994).
 // "Representations of Quasi-Newton Matrices and their use in
 // Limited Memory Methods". Mathematical Programming 63 (4):
-class LowRankInverseHessian : public LinearOperator {
+class LowRankInverseHessian : public LinearOperator<int> {
  public:
   // num_parameters is the row/column size of the Hessian.
   // max_num_corrections is the rank of the Hessian approximation.
@@ -88,8 +88,8 @@ class LowRankInverseHessian : public LinearOperator {
   void LeftMultiply(const double* x, double* y) const final {
     RightMultiply(x, y);
   }
-  int num_rows() const final { return num_parameters_; }
-  int num_cols() const final { return num_parameters_; }
+  int64_t num_rows() const final { return num_parameters_; }
+  int64_t num_cols() const final { return num_parameters_; }
 
  private:
   const int num_parameters_;

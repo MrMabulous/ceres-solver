@@ -56,7 +56,7 @@ BlockRandomAccessSparseMatrix::BlockRandomAccessSparseMatrix(
 
   // Build the row/column layout vector and count the number of scalar
   // rows/columns.
-  int num_cols = 0;
+  int64_t num_cols = 0;
   block_positions_.reserve(blocks_.size());
   for (int i = 0; i < blocks_.size(); ++i) {
     block_positions_.push_back(num_cols);
@@ -66,7 +66,7 @@ BlockRandomAccessSparseMatrix::BlockRandomAccessSparseMatrix(
   // Count the number of scalar non-zero entries and build the layout
   // object for looking into the values array of the
   // TripletSparseMatrix.
-  int num_nonzeros = 0;
+  int64_t num_nonzeros = 0;
   for (const auto& block_pair : block_pairs) {
     const int row_block_size = blocks_[block_pair.first];
     const int col_block_size = blocks_[block_pair.second];
@@ -78,10 +78,8 @@ BlockRandomAccessSparseMatrix::BlockRandomAccessSparseMatrix(
 
   tsm_.reset(new TripletSparseMatrix(num_cols, num_cols, num_nonzeros));
   tsm_->set_num_nonzeros(num_nonzeros);
-  int* rows = tsm_->mutable_rows();
-  int* cols = tsm_->mutable_cols();
-  double* values = tsm_->mutable_values();
 
+  double* values = tsm_->mutable_values();
   int pos = 0;
   for (const auto& block_pair : block_pairs) {
     const int row_block_size = blocks_[block_pair.first];
@@ -92,21 +90,48 @@ BlockRandomAccessSparseMatrix::BlockRandomAccessSparseMatrix(
     pos += row_block_size * col_block_size;
   }
 
-  // Fill the sparsity pattern of the underlying matrix.
-  for (const auto& block_pair : block_pairs) {
-    const int row_block_id = block_pair.first;
-    const int col_block_id = block_pair.second;
-    const int row_block_size = blocks_[row_block_id];
-    const int col_block_size = blocks_[col_block_id];
-    int pos =
-        layout_[IntPairToLong(row_block_id, col_block_id)]->values - values;
-    for (int r = 0; r < row_block_size; ++r) {
-      for (int c = 0; c < col_block_size; ++c, ++pos) {
-        rows[pos] = block_positions_[row_block_id] + r;
-        cols[pos] = block_positions_[col_block_id] + c;
-        values[pos] = 1.0;
-        DCHECK_LT(rows[pos], tsm_->num_rows());
-        DCHECK_LT(cols[pos], tsm_->num_rows());
+  if(tsm_->index_type_ == INT_32) {
+    int* rows = reinterpret_cast<int*>(tsm_->mutable_rows());
+    int* cols = reinterpret_cast<int*>(tsm_->mutable_cols());
+
+    // Fill the sparsity pattern of the underlying matrix.
+    for (const auto& block_pair : block_pairs) {
+      const int row_block_id = block_pair.first;
+      const int col_block_id = block_pair.second;
+      const int row_block_size = blocks_[row_block_id];
+      const int col_block_size = blocks_[col_block_id];
+      int pos =
+          layout_[IntPairToLong(row_block_id, col_block_id)]->values - values;
+      for (int r = 0; r < row_block_size; ++r) {
+        for (int c = 0; c < col_block_size; ++c, ++pos) {
+          rows[pos] = static_cast<int>(block_positions_[row_block_id] + r);
+          cols[pos] = static_cast<int>(block_positions_[col_block_id] + c);
+          values[pos] = 1.0;
+          DCHECK_LT(rows[pos], tsm_->num_rows());
+          DCHECK_LT(cols[pos], tsm_->num_rows());
+        }
+      }
+    }
+  } else {
+    int64_t* rows = reinterpret_cast<int64_t*>(tsm_->mutable_rows());
+    int64_t* cols = reinterpret_cast<int64_t*>(tsm_->mutable_cols());
+
+    // Fill the sparsity pattern of the underlying matrix.
+    for (const auto& block_pair : block_pairs) {
+      const int row_block_id = block_pair.first;
+      const int col_block_id = block_pair.second;
+      const int row_block_size = blocks_[row_block_id];
+      const int col_block_size = blocks_[col_block_id];
+      int64_t pos =
+          layout_[IntPairToLong(row_block_id, col_block_id)]->values - values;
+      for (int r = 0; r < row_block_size; ++r) {
+        for (int c = 0; c < col_block_size; ++c, ++pos) {
+          rows[pos] = block_positions_[row_block_id] + r;
+          cols[pos] = block_positions_[col_block_id] + c;
+          values[pos] = 1.0;
+          DCHECK_LT(rows[pos], tsm_->num_rows());
+          DCHECK_LT(cols[pos], tsm_->num_rows());
+        }
       }
     }
   }
@@ -144,7 +169,7 @@ CellInfo* BlockRandomAccessSparseMatrix::GetCell(int row_block_id,
 // when they are calling SetZero.
 void BlockRandomAccessSparseMatrix::SetZero() {
   if (tsm_->num_nonzeros()) {
-    VectorRef(tsm_->mutable_values(), tsm_->num_nonzeros()).setZero();
+    memset(tsm_->mutable_values(), 0, sizeof(double) * tsm_->num_nonzeros());
   }
 }
 
@@ -153,11 +178,11 @@ void BlockRandomAccessSparseMatrix::SymmetricRightMultiply(const double* x,
   for (const auto& cell_position_and_data : cell_values_) {
     const int row = cell_position_and_data.first.first;
     const int row_block_size = blocks_[row];
-    const int row_block_pos = block_positions_[row];
+    const int64_t row_block_pos = block_positions_[row];
 
     const int col = cell_position_and_data.first.second;
     const int col_block_size = blocks_[col];
-    const int col_block_pos = block_positions_[col];
+    const int64_t col_block_pos = block_positions_[col];
 
     MatrixVectorMultiply<Eigen::Dynamic, Eigen::Dynamic, 1>(
         cell_position_and_data.second,

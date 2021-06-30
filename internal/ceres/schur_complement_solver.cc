@@ -63,7 +63,7 @@ using std::vector;
 
 namespace {
 
-class BlockRandomAccessSparseMatrixAdapter : public LinearOperator {
+class BlockRandomAccessSparseMatrixAdapter : public LinearOperator<int> {
  public:
   explicit BlockRandomAccessSparseMatrixAdapter(
       const BlockRandomAccessSparseMatrix& m)
@@ -81,14 +81,14 @@ class BlockRandomAccessSparseMatrixAdapter : public LinearOperator {
     m_.SymmetricRightMultiply(x, y);
   }
 
-  int num_rows() const final { return m_.num_rows(); }
-  int num_cols() const final { return m_.num_rows(); }
+  int64_t num_rows() const final { return m_.num_rows(); }
+  int64_t num_cols() const final { return m_.num_rows(); }
 
  private:
   const BlockRandomAccessSparseMatrix& m_;
 };
 
-class BlockRandomAccessDiagonalMatrixAdapter : public LinearOperator {
+class BlockRandomAccessDiagonalMatrixAdapter : public LinearOperator<int> {
  public:
   explicit BlockRandomAccessDiagonalMatrixAdapter(
       const BlockRandomAccessDiagonalMatrix& m)
@@ -106,8 +106,8 @@ class BlockRandomAccessDiagonalMatrixAdapter : public LinearOperator {
     m_.RightMultiply(x, y);
   }
 
-  int num_rows() const final { return m_.num_rows(); }
-  int num_cols() const final { return m_.num_rows(); }
+  int64_t num_rows() const final { return m_.num_rows(); }
+  int64_t num_cols() const final { return m_.num_rows(); }
 
  private:
   const BlockRandomAccessDiagonalMatrix& m_;

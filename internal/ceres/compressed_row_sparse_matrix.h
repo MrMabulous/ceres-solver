@@ -108,9 +108,9 @@ class CERES_EXPORT_INTERNAL CompressedRowSparseMatrix : public SparseMatrix {
   void ScaleColumns(const double* scale) final;
   void ToDenseMatrix(Matrix* dense_matrix) const final;
   void ToTextFile(FILE* file) const final;
-  int num_rows() const final { return num_rows_; }
-  int num_cols() const final { return num_cols_; }
-  int num_nonzeros() const final { return rows_[num_rows_]; }
+  int64_t num_rows() const final { return num_rows_; }
+  int64_t num_cols() const final { return num_cols_; }
+  int64_t num_nonzeros() const final { return rows_[num_rows_]; }
   const double* values() const final { return &values_[0]; }
   double* mutable_values() final { return &values_[0]; }
 

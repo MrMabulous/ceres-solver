@@ -77,8 +77,8 @@ class CERES_EXPORT_INTERNAL BlockRandomAccessDenseMatrix
 
   // Since the matrix is square with the same row and column block
   // structure, num_rows() = num_cols().
-  int num_rows() const final { return num_rows_; }
-  int num_cols() const final { return num_rows_; }
+  int64_t num_rows() const final { return num_rows_; }
+  int64_t num_cols() const final { return num_rows_; }
 
   // The underlying matrix storing the cells.
   const double* values() const { return values_.get(); }

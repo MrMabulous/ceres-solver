@@ -55,18 +55,19 @@ namespace {
 //  rows[i] == rows[j] && cols[i] == cols[j]
 //
 // If this is the case, this functor will not be a StrictWeakOrdering.
+template<typename T>
 struct RowColLessThan {
-  RowColLessThan(const int* rows, const int* cols) : rows(rows), cols(cols) {}
+  RowColLessThan(const T* rows, const T* cols) : rows(rows), cols(cols) {}
 
-  bool operator()(const int x, const int y) const {
+  bool operator()(const T x, const T y) const {
     if (rows[x] == rows[y]) {
       return (cols[x] < cols[y]);
     }
     return (rows[x] < rows[y]);
   }
 
-  const int* rows;
-  const int* cols;
+  const T* rows;
+  const T* cols;
 };
 
 void TransposeForCompressedRowSparseStructure(const int num_rows,
@@ -122,8 +123,8 @@ void AddRandomBlock(const int num_rows,
                     const int num_cols,
                     const int row_block_begin,
                     const int col_block_begin,
-                    std::vector<int>* rows,
-                    std::vector<int>* cols,
+                    std::vector<SuiteSparse_long>* rows,
+                    std::vector<SuiteSparse_long>* cols,
                     std::vector<double>* values) {
   for (int r = 0; r < num_rows; ++r) {
     for (int c = 0; c < num_cols; ++c) {
@@ -136,8 +137,8 @@ void AddRandomBlock(const int num_rows,
 
 void AddSymmetricRandomBlock(const int num_rows,
                              const int row_block_begin,
-                             std::vector<int>* rows,
-                             std::vector<int>* cols,
+                             std::vector<SuiteSparse_long>* rows,
+                             std::vector<SuiteSparse_long>* cols,
                              std::vector<double>* values) {
   for (int r = 0; r < num_rows; ++r) {
     for (int c = r; c < num_rows; ++c) {
@@ -189,8 +190,8 @@ CompressedRowSparseMatrix* CompressedRowSparseMatrix::FromTripletSparseMatrix(
     const TripletSparseMatrix& input, bool transpose) {
   int num_rows = input.num_rows();
   int num_cols = input.num_cols();
-  const int* rows = input.rows();
-  const int* cols = input.cols();
+  const SuiteSparse_long* rows = input.rows();
+  const SuiteSparse_long* cols = input.cols();
   const double* values = input.values();
 
   if (transpose) {
@@ -232,8 +233,8 @@ CompressedRowSparseMatrix* CompressedRowSparseMatrix::FromTripletSparseMatrix(
   for (int i = 0; i < index.size(); ++i) {
     const int idx = index[i];
     ++output_rows[rows[idx] + 1];
-    output_cols[i] = cols[idx];
-    output_values[i] = values[idx];
+    output_cols[i] = static_cast<int>(cols[idx]);
+    output_values[i] = static_cast<int>(values[idx]);
   }
 
   // Find the cumulative sum of the row counts.
@@ -658,8 +659,8 @@ CompressedRowSparseMatrix* CompressedRowSparseMatrix::CreateRandomMatrix(
     col_blocks = row_blocks;
   }
 
-  vector<int> tsm_rows;
-  vector<int> tsm_cols;
+  vector<SuiteSparse_long> tsm_rows;
+  vector<SuiteSparse_long> tsm_cols;
   vector<double> tsm_values;
 
   // For ease of construction, we are going to generate the

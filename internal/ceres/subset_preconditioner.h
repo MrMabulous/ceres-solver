@@ -76,8 +76,8 @@ class CERES_EXPORT_INTERNAL SubsetPreconditioner
 
   // Preconditioner interface
   void RightMultiply(const double* x, double* y) const final;
-  int num_rows() const final { return num_cols_; }
-  int num_cols() const final { return num_cols_; }
+  int64_t num_rows() const final { return num_cols_; }
+  int64_t num_cols() const final { return num_cols_; }
 
  private:
   bool UpdateImpl(const BlockSparseMatrix& A, const double* D) final;

@@ -47,16 +47,23 @@ namespace internal {
 
 using std::vector;
 
-// TODO(sameeragarwal): Drop the dependence on TripletSparseMatrix.
+namespace {
 
+template<IndexType>
+
+
+}
+
+// TODO(sameeragarwal): Drop the dependence on TripletSparseMatrix.
 BlockRandomAccessDiagonalMatrix::BlockRandomAccessDiagonalMatrix(
     const vector<int>& blocks)
     : blocks_(blocks) {
   // Build the row/column layout vector and count the number of scalar
   // rows/columns.
-  int num_cols = 0;
-  int num_nonzeros = 0;
-  vector<int> block_positions;
+  CHECK_LE(blocks.size(), std::numeric_limits<int>::max());
+  int64_t num_cols = 0;
+  int64_t num_nonzeros = 0;
+  vector<int64_t> block_positions;
   for (int i = 0; i < blocks_.size(); ++i) {
     block_positions.push_back(num_cols);
     num_cols += blocks_[i];
@@ -66,21 +73,42 @@ BlockRandomAccessDiagonalMatrix::BlockRandomAccessDiagonalMatrix(
   VLOG(1) << "Matrix Size [" << num_cols << "," << num_cols << "] "
           << num_nonzeros;
 
-  tsm_.reset(new TripletSparseMatrix(num_cols, num_cols, num_nonzeros));
-  tsm_->set_num_nonzeros(num_nonzeros);
-  int* rows = tsm_->mutable_rows();
-  int* cols = tsm_->mutable_cols();
-  double* values = tsm_->mutable_values();
+  tsm_.reset(new TripletSparseMatrix(num_cols,
+                                     num_cols,
+                                     num_nonzeros));
 
-  int pos = 0;
-  for (int i = 0; i < blocks_.size(); ++i) {
-    const int block_size = blocks_[i];
-    layout_.push_back(new CellInfo(values + pos));
-    const int block_begin = block_positions[i];
-    for (int r = 0; r < block_size; ++r) {
-      for (int c = 0; c < block_size; ++c, ++pos) {
-        rows[pos] = block_begin + r;
-        cols[pos] = block_begin + c;
+  tsm_->set_num_nonzeros(num_nonzeros);
+  double* values = tsm_->mutable_values();
+  if(tsm_->index_type() == TripletSparseMatrix::INT_32) {
+    int* rows = reinterpret_cast<int*>(tsm_->mutable_rows());
+    int* cols = reinterpret_cast<int*>(tsm_->mutable_cols());
+
+    int pos = 0;
+    for (int i = 0; i < blocks_.size(); ++i) {
+      const int block_size = blocks_[i];
+      layout_.push_back(new CellInfo(values + pos));
+      const int block_begin = static_cast<int>(block_positions[i]);
+      for (int r = 0; r < block_size; ++r) {
+        for (int c = 0; c < block_size; ++c, ++pos) {
+          rows[pos] = block_begin + r;
+          cols[pos] = block_begin + c;
+        }
+      }
+    }
+  } else {
+    int64_t* rows = reinterpret_cast<int64_t*>(tsm_->mutable_rows());
+    int64_t* cols = reinterpret_cast<int64_t*>(tsm_->mutable_cols());
+
+    int64_t pos = 0;
+    for (int i = 0; i < blocks_.size(); ++i) {
+      const int block_size = blocks_[i];
+      layout_.push_back(new CellInfo(values + pos));
+      const int64_t block_begin = block_positions[i];
+      for (int r = 0; r < block_size; ++r) {
+        for (int c = 0; c < block_size; ++c, ++pos) {
+          rows[pos] = block_begin + r;
+          cols[pos] = block_begin + c;
+        }
       }
     }
   }
@@ -115,7 +143,7 @@ CellInfo* BlockRandomAccessDiagonalMatrix::GetCell(int row_block_id,
 // when they are calling SetZero.
 void BlockRandomAccessDiagonalMatrix::SetZero() {
   if (tsm_->num_nonzeros()) {
-    VectorRef(tsm_->mutable_values(), tsm_->num_nonzeros()).setZero();
+    memset(tsm_->mutable_values(), 0, sizeof(double) * tsm_->num_nonzeros());
   }
 }
 

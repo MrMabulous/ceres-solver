@@ -48,7 +48,6 @@ namespace ceres {
 namespace internal {
 
 class CompressedRowSparseMatrix;
-class TripletSparseMatrix;
 
 template <typename Scalar>
 struct SparseTypesTrait {};

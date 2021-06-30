@@ -48,14 +48,25 @@ namespace internal {
 // SuiteSparse package and is memory layout compatible with it.
 class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
  public:
-  TripletSparseMatrix();
-  TripletSparseMatrix(int num_rows, int num_cols, int max_num_nonzeros);
-  TripletSparseMatrix(int num_rows,
-                      int num_cols,
-                      const std::vector<SuiteSparse_long>& rows,
-                      const std::vector<SuiteSparse_long>& cols,
-                      const std::vector<double>& values);
+  enum IndexType {
+    INT_32 = 4,
+    INT_64 = 8
+  };
 
+  TripletSparseMatrix(bool force_long_indices = false);
+  TripletSparseMatrix(int64_t num_rows,
+                      int64_t num_cols,
+                      int64_t max_num_nonzeros,
+                      bool force_long_indices = false);
+  template<typename T>
+  TripletSparseMatrix(int64_t num_rows,
+                      int64_t num_cols,
+                      const std::vector<T>& rows,
+                      const std::vector<T>& cols,
+                      const std::vector<double>& values,
+                      bool force_long_indices = false);
+
+  //LEIndexType is either same or smaller index type.
   explicit TripletSparseMatrix(const TripletSparseMatrix& orig);
 
   TripletSparseMatrix& operator=(const TripletSparseMatrix& rhs);
@@ -71,20 +82,20 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
   void ToDenseMatrix(Matrix* dense_matrix) const final;
   void ToTextFile(FILE* file) const final;
   // clang-format off
-  int num_rows()        const final   { return num_rows_;     }
-  int num_cols()        const final   { return num_cols_;     }
-  int num_nonzeros()    const final   { return num_nonzeros_; }
+  int64_t num_rows()        const final   { return num_rows_;     }
+  int64_t num_cols()        const final   { return num_cols_;     }
+  int64_t num_nonzeros()    const final   { return num_nonzeros_; }
   const double* values()  const final { return values_.get(); }
   double* mutable_values() final      { return values_.get(); }
   // clang-format on
-  void set_num_nonzeros(int num_nonzeros);
+  void set_num_nonzeros(int64_t num_nonzeros);
 
   // Increase max_num_nonzeros and correspondingly increase the size
   // of rows_, cols_ and values_. If new_max_num_nonzeros is smaller
   // than max_num_nonzeros_, then num_non_zeros should be less than or
   // equal to new_max_num_nonzeros, otherwise data loss is possible
   // and the method crashes.
-  void Reserve(int new_max_num_nonzeros);
+  void Reserve(int64_t new_max_num_nonzeros);
 
   // Append the matrix B at the bottom of this matrix. B should have
   // the same number of columns as num_cols_.
@@ -96,14 +107,15 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
 
   // Resize the matrix. Entries which fall outside the new matrix
   // bounds are dropped and the num_non_zeros changed accordingly.
-  void Resize(int new_num_rows, int new_num_cols);
+  void Resize(int64_t new_num_rows, int64_t new_num_cols);
 
   // clang-format off
-  int max_num_nonzeros() const         { return max_num_nonzeros_; }
-  const SuiteSparse_long* rows() const { return rows_.get();       }
-  const SuiteSparse_long* cols() const { return cols_.get();       }
-  SuiteSparse_long* mutable_rows()     { return rows_.get();       }
-  SuiteSparse_long* mutable_cols()     { return cols_.get();       }
+  int64_t max_num_nonzeros() const { return max_num_nonzeros_; }
+  IndexType index_type() const { return index_type_; }
+  const void* rows() const;
+  const void* cols() const;
+  void* mutable_rows();
+  void* mutable_cols();
   // clang-format on
 
   // Returns true if the entries of the matrix obey the row, column,
@@ -116,13 +128,13 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
   // the array values. Entries of the values array are copied into the
   // sparse matrix.
   static TripletSparseMatrix* CreateSparseDiagonalMatrix(const double* values,
-                                                         int num_rows);
+                                                         int64_t num_rows);
 
   // Options struct to control the generation of random
   // TripletSparseMatrix objects.
   struct RandomMatrixOptions {
-    int num_rows;
-    int num_cols;
+    int64_t num_rows;
+    int64_t num_cols;
     // 0 < density <= 1 is the probability of an entry being
     // structurally non-zero. A given random matrix will not have
     // precisely this density.
@@ -141,17 +153,20 @@ class CERES_EXPORT_INTERNAL TripletSparseMatrix : public SparseMatrix {
   void AllocateMemory();
   void CopyData(const TripletSparseMatrix& orig);
 
-  int num_rows_;
-  int num_cols_;
-  int max_num_nonzeros_;
-  int num_nonzeros_;
+  int64_t num_rows_;
+  int64_t num_cols_;
+  int64_t max_num_nonzeros_;
+  int64_t num_nonzeros_;
+  IndexType index_type_;
 
   // The data is stored as three arrays. For each i, values_[i] is
   // stored at the location (rows_[i], cols_[i]). If the there are
   // multiple entries with the same (rows_[i], cols_[i]), the values_
   // entries corresponding to them are summed up.
-  std::unique_ptr<SuiteSparse_long[]> rows_;
-  std::unique_ptr<SuiteSparse_long[]> cols_;
+  std::unique_ptr<int[]> rows_;
+  std::unique_ptr<int[]> cols_;
+  std::unique_ptr<int64_t[]> rows64_;
+  std::unique_ptr<int64_t[]> cols64_;
   std::unique_ptr<double[]> values_;
 };
 

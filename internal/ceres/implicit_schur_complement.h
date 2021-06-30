@@ -88,7 +88,8 @@ class BlockSparseMatrix;
 // RightMultiply (and the LeftMultiply) methods are not thread safe as
 // they depend on mutable arrays used for the temporaries needed to
 // compute the product y += Sx;
-class CERES_EXPORT_INTERNAL ImplicitSchurComplement : public LinearOperator {
+class CERES_EXPORT_INTERNAL ImplicitSchurComplement
+    : public LinearOperator {
  public:
   // num_eliminate_blocks is the number of E blocks in the matrix
   // A.
@@ -129,8 +130,8 @@ class CERES_EXPORT_INTERNAL ImplicitSchurComplement : public LinearOperator {
   // complement.
   void BackSubstitute(const double* x, double* y);
 
-  int num_rows() const final { return A_->num_cols_f(); }
-  int num_cols() const final { return A_->num_cols_f(); }
+  int64_t num_rows() const final { return A_->num_cols_f(); }
+  int64_t num_cols() const final { return A_->num_cols_f(); }
   const Vector& rhs() const { return rhs_; }
 
   const BlockSparseMatrix* block_diagonal_EtE_inverse() const {

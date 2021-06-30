@@ -86,8 +86,8 @@ class CERES_EXPORT_INTERNAL BlockRandomAccessSparseMatrix
   void SymmetricRightMultiply(const double* x, double* y) const;
 
   // Since the matrix is square, num_rows() == num_cols().
-  int num_rows() const final { return tsm_->num_rows(); }
-  int num_cols() const final { return tsm_->num_cols(); }
+  int64_t num_rows() const final { return tsm_->num_rows(); }
+  int64_t num_cols() const final { return tsm_->num_cols(); }
 
   // Access to the underlying matrix object.
   const TripletSparseMatrix* matrix() const { return tsm_.get(); }
@@ -107,7 +107,7 @@ class CERES_EXPORT_INTERNAL BlockRandomAccessSparseMatrix
 
   // row/column block sizes.
   const std::vector<int> blocks_;
-  std::vector<int> block_positions_;
+  std::vector<int64_t> block_positions_;
 
   // A mapping from <row_block_id, col_block_id> to the position in
   // the values array of tsm_ where the block is stored.

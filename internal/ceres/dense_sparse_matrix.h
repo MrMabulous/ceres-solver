@@ -63,8 +63,8 @@ class CERES_EXPORT_INTERNAL DenseSparseMatrix : public SparseMatrix {
   void ScaleColumns(const double* scale) final;
   void ToDenseMatrix(Matrix* dense_matrix) const final;
   void ToTextFile(FILE* file) const final;
-  int num_rows() const final;
-  int num_cols() const final;
+  int64_t num_rows() const final;
+  int64_t num_cols() const final;
   int num_nonzeros() const final;
   const double* values() const final { return m_.data(); }
   double* mutable_values() final { return m_.data(); }

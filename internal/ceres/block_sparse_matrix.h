@@ -80,9 +80,9 @@ class CERES_EXPORT_INTERNAL BlockSparseMatrix : public SparseMatrix {
   void ToTextFile(FILE* file) const final;
 
   // clang-format off
-  int num_rows()         const final { return num_rows_;     }
-  int num_cols()         const final { return num_cols_;     }
-  int num_nonzeros()     const final { return num_nonzeros_; }
+  int64_t num_rows()         const final { return num_rows_;     }
+  int64_t num_cols()         const final { return num_cols_;     }
+  int64_t num_nonzeros()     const final { return num_nonzeros_; }
   const double* values() const final { return values_.get(); }
   double* mutable_values()     final { return values_.get(); }
   // clang-format on

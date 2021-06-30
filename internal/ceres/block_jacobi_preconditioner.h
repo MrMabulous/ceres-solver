@@ -65,8 +65,8 @@ class CERES_EXPORT_INTERNAL BlockJacobiPreconditioner
 
   // Preconditioner interface
   void RightMultiply(const double* x, double* y) const final;
-  int num_rows() const final { return m_->num_rows(); }
-  int num_cols() const final { return m_->num_rows(); }
+  int64_t num_rows() const final { return m_->num_rows(); }
+  int64_t num_cols() const final { return m_->num_rows(); }
   const BlockRandomAccessDiagonalMatrix& matrix() const { return *m_; }
 
  private:

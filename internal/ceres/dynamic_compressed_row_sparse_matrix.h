@@ -69,7 +69,7 @@ class CERES_EXPORT_INTERNAL DynamicCompressedRowSparseMatrix
   // `CompressedRowSparseMatrix` consistent.
   DynamicCompressedRowSparseMatrix(int num_rows,
                                    int num_cols,
-                                   int initial_max_num_nonzeros);
+                                   int64_t initial_max_num_nonzeros);
 
   // Insert an entry at a given row and column position. This method is
   // thread-safe across rows i.e. different threads can insert values

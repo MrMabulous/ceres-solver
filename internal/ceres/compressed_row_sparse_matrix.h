@@ -91,7 +91,8 @@ class CERES_EXPORT_INTERNAL CompressedRowSparseMatrix : public SparseMatrix {
   // double the peak memory usage.
   //
   // The storage type is set to UNSYMMETRIC.
-  CompressedRowSparseMatrix(int num_rows, int num_cols, int max_num_nonzeros);
+  CompressedRowSparseMatrix(int num_rows, int num_cols,
+                            int max_num_nonzeros);
 
   // Build a square sparse diagonal matrix with num_rows rows and
   // columns. The diagonal m(i,i) = diagonal(i);
@@ -110,7 +111,7 @@ class CERES_EXPORT_INTERNAL CompressedRowSparseMatrix : public SparseMatrix {
   void ToTextFile(FILE* file) const final;
   int num_rows() const final { return num_rows_; }
   int num_cols() const final { return num_cols_; }
-  int num_nonzeros() const final { return rows_[num_rows_]; }
+  int64_t num_nonzeros() const final { return rows_[num_rows_]; }
   const double* values() const final { return &values_[0]; }
   double* mutable_values() final { return &values_[0]; }
 

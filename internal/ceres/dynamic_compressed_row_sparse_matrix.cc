@@ -36,7 +36,7 @@ namespace ceres {
 namespace internal {
 
 DynamicCompressedRowSparseMatrix::DynamicCompressedRowSparseMatrix(
-    int num_rows, int num_cols, int64_t initial_max_num_nonzeros)
+    int num_rows, int num_cols, int initial_max_num_nonzeros)
     : CompressedRowSparseMatrix(num_rows, num_cols, initial_max_num_nonzeros) {
   dynamic_cols_.resize(num_rows);
   dynamic_values_.resize(num_rows);
@@ -69,7 +69,7 @@ void DynamicCompressedRowSparseMatrix::Finalize(int num_additional_elements) {
   CHECK_GE(num_additional_elements, 0);
 
   // Count the number of non-zeros and resize `cols_` and `values_`.
-  int64_t num_jacobian_nonzeros = 0;
+  int num_jacobian_nonzeros = 0;
   for (int i = 0; i < dynamic_cols_.size(); ++i) {
     num_jacobian_nonzeros += dynamic_cols_[i].size();
   }
@@ -78,7 +78,7 @@ void DynamicCompressedRowSparseMatrix::Finalize(int num_additional_elements) {
 
   // Flatten `dynamic_cols_` into `cols_` and `dynamic_values_`
   // into `values_`.
-  int64_t index_into_values_and_cols = 0;
+  int index_into_values_and_cols = 0;
   for (int i = 0; i < num_rows(); ++i) {
     mutable_rows()[i] = index_into_values_and_cols;
     const int num_nonzero_columns = dynamic_cols_[i].size();

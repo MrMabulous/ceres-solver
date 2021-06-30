@@ -91,8 +91,7 @@ class CERES_EXPORT_INTERNAL CompressedRowSparseMatrix : public SparseMatrix {
   // double the peak memory usage.
   //
   // The storage type is set to UNSYMMETRIC.
-  CompressedRowSparseMatrix(int num_rows, int num_cols,
-                            int max_num_nonzeros);
+  CompressedRowSparseMatrix(int num_rows, int num_cols, int max_num_nonzeros);
 
   // Build a square sparse diagonal matrix with num_rows rows and
   // columns. The diagonal m(i,i) = diagonal(i);

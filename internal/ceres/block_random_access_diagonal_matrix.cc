@@ -60,7 +60,8 @@ BlockRandomAccessDiagonalMatrix::BlockRandomAccessDiagonalMatrix(
   for (int i = 0; i < blocks_.size(); ++i) {
     block_positions.push_back(num_cols);
     num_cols += blocks_[i];
-    num_nonzeros += blocks_[i] * blocks_[i];
+    int64_t block_size = static_cast<int64_t>(blocks_[i]);
+    num_nonzeros += block_size * block_size;
   }
 
   VLOG(1) << "Matrix Size [" << num_cols << "," << num_cols << "] "

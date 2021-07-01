@@ -131,9 +131,11 @@ int DenseSparseMatrix::num_cols() const { return m_.cols(); }
 
 int64_t DenseSparseMatrix::num_nonzeros() const {
   if (has_diagonal_reserved_ && !has_diagonal_appended_) {
-    return static_cast<int64_t>(m_.rows() - m_.cols()) * m_.cols();
+    return static_cast<int64_t>(m_.rows() - m_.cols()) *
+           static_cast<int64_t>(m_.cols());
   }
-  return static_cast<int64_t>(m_.rows()) * m_.cols();
+  return static_cast<int64_t>(m_.rows()) *
+         static_cast<int64_t>(m_.cols());
 }
 
 ConstColMajorMatrixRef DenseSparseMatrix::matrix() const {

@@ -434,8 +434,8 @@ bool CovarianceImpl::ComputeCovarianceSparsity(
 
     int index1 = FindOrDie(parameter_block_to_row_index_, block_pair.first);
     int index2 = FindOrDie(parameter_block_to_row_index_, block_pair.second);
-    const int size1 = problem->ParameterBlockLocalSize(block_pair.first);
-    const int size2 = problem->ParameterBlockLocalSize(block_pair.second);
+    const int64_t size1 = problem->ParameterBlockLocalSize(block_pair.first);
+    const int64_t size2 = problem->ParameterBlockLocalSize(block_pair.second);
     num_nonzeros += size1 * size2;
 
     // Make sure we are constructing a block upper triangular matrix.

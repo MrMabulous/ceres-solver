@@ -79,7 +79,8 @@ int64_t InnerProductComputer::ComputeNonzeros(
   // First product term.
   (*row_nnz)[product_terms[0].row] = blocks[product_terms[0].col].size;
   int64_t num_nonzeros =
-      blocks[product_terms[0].row].size * blocks[product_terms[0].col].size;
+      static_cast<int64_t>(blocks[product_terms[0].row].size) *
+      static_cast<int64_t>(blocks[product_terms[0].col].size);
 
   // Remaining product terms.
   for (int i = 1; i < product_terms.size(); ++i) {
@@ -90,7 +91,8 @@ int64_t InnerProductComputer::ComputeNonzeros(
     // This check depends on product sorted on (row, col).
     if (current.row != previous.row || current.col != previous.col) {
       (*row_nnz)[current.row] += blocks[current.col].size;
-      num_nonzeros += blocks[current.row].size * blocks[current.col].size;
+      num_nonzeros += static_cast<int64_t>(blocks[current.row].size) *
+                      static_cast<int64_t>(blocks[current.col].size);
     }
   }
 

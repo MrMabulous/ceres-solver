@@ -261,7 +261,8 @@ BlockSparseMatrix* BlockSparseMatrix::CreateDiagonalMatrix(
     Cell& cell = row.cells[0];
     cell.block_id = i;
     cell.position = position;
-    position += row.block.size * row.block.size;
+    int64_t block_size = static_cast<int64_t>(row.block.size);
+    position += block_size * block_size;
   }
 
   // Create the BlockSparseMatrix with the given block structure.
@@ -303,7 +304,8 @@ void BlockSparseMatrix::AppendRows(const BlockSparseMatrix& m) {
       const int block_id = m_row.cells[c].block_id;
       row.cells[c].block_id = block_id;
       row.cells[c].position = num_nonzeros_;
-      num_nonzeros_ += m_row.block.size * m_bs->cols[block_id].size;
+      num_nonzeros_ += static_cast<int64_t>(m_row.block.size) *
+                       static_cast<int64_t>(m_bs->cols[block_id].size);
     }
   }
 
@@ -329,7 +331,9 @@ void BlockSparseMatrix::DeleteRowBlocks(const int delta_row_blocks) {
     delta_num_rows += row.block.size;
     for (int c = 0; c < row.cells.size(); ++c) {
       const Cell& cell = row.cells[c];
-      delta_num_nonzeros += row.block.size * column_blocks[cell.block_id].size;
+      delta_num_nonzeros +=
+          static_cast<int64_t>(row.block.size) *
+          static_cast<int64_t>(column_blocks[cell.block_id].size);
     }
   }
   num_nonzeros_ -= delta_num_nonzeros;
@@ -389,7 +393,8 @@ BlockSparseMatrix* BlockSparseMatrix::CreateRandomMatrix(
         Cell& cell = row.cells.back();
         cell.block_id = c;
         cell.position = value_position;
-        value_position += row_block_size * bs->cols[c].size;
+        value_position += static_cast<int64_t>(row_block_size) *
+                          static_cast<int64_t>(bs->cols[c].size);
         matrix_has_blocks = true;
       }
     }
